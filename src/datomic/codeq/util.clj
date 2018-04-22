@@ -24,4 +24,4 @@
      (or (index-get-id db attr x)
          (d/tempid :db.part/user)))))
 
-(def tempid? map?)
+(def tempid? map?) ;;todo - better pred

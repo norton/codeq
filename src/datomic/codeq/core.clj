@@ -20,235 +20,205 @@
 (set! *warn-on-reflection* true)
 
 (def schema
-     [
-      ;;tx attrs
-      {:db/id #db/id[:db.part/db]
-       :db/ident :tx/commit
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Associate tx with this git commit"
-       :db.install/_attribute :db.part/db}
+  [
+   ;;tx attrs
+   {:db/ident :tx/commit
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Associate tx with this git commit"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :tx/file
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Associate tx with this git blob"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :tx/file
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Associate tx with this git blob"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :tx/analyzer
-       :db/valueType :db.type/keyword
-       :db/cardinality :db.cardinality/one
-       :db/index true
-       :db/doc "Associate tx with this analyzer"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :tx/analyzer
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one
+    :db/index true
+    :db/doc "Associate tx with this analyzer"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :tx/analyzerRev
-       :db/valueType :db.type/long
-       :db/cardinality :db.cardinality/one
-       :db/doc "Associate tx with this analyzer revision"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :tx/analyzerRev
+    :db/valueType :db.type/long
+    :db/cardinality :db.cardinality/one
+    :db/doc "Associate tx with this analyzer revision"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :tx/op
-       :db/valueType :db.type/keyword
-       :db/index true
-       :db/cardinality :db.cardinality/one
-       :db/doc "Associate tx with this operation - one of :import, :analyze"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :tx/op
+    :db/valueType :db.type/keyword
+    :db/index true
+    :db/cardinality :db.cardinality/one
+    :db/doc "Associate tx with this operation - one of :import, :analyze"
+    :db.install/_attribute :db.part/db}
 
-      ;;git stuff
-      {:db/id #db/id[:db.part/db]
-       :db/ident :git/type
-       :db/valueType :db.type/keyword
-       :db/cardinality :db.cardinality/one
-       :db/index true
-       :db/doc "Type enum for git objects - one of :commit, :tree, :blob, :tag"
-       :db.install/_attribute :db.part/db}
+   ;;git stuff
+   {:db/ident :git/type
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one
+    :db/index true
+    :db/doc "Type enum for git objects - one of :commit, :tree, :blob, :tag"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :git/sha
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "A git sha, should be in repo"
-       :db/unique :db.unique/identity
-       :db.install/_attribute :db.part/db}
+   {:db/ident :git/sha
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A git sha, should be in repo"
+    :db/unique :db.unique/identity
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :repo/commits
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/many
-       :db/doc "Associate repo with these git commits"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :repo/commits
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/doc "Associate repo with these git commits"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :repo/uri
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "A git repo uri"
-       :db/unique :db.unique/identity
-       :db.install/_attribute :db.part/db}
+   {:db/ident :repo/uri
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A git repo uri"
+    :db/unique :db.unique/identity
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/parents
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/many
-       :db/doc "Parents of a commit"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/parents
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/doc "Parents of a commit"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/tree
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Root node of a commit"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/tree
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Root node of a commit"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/message
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "A commit message"
-       :db/fulltext true
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/message
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A commit message"
+    :db/fulltext true
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/author
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Person who authored a commit"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/author
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Person who authored a commit"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/authoredAt
-       :db/valueType :db.type/instant
-       :db/cardinality :db.cardinality/one
-       :db/doc "Timestamp of authorship of commit"
-       :db/index true
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/authoredAt
+    :db/valueType :db.type/instant
+    :db/cardinality :db.cardinality/one
+    :db/doc "Timestamp of authorship of commit"
+    :db/index true
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/committer
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Person who committed a commit"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/committer
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Person who committed a commit"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :commit/committedAt
-       :db/valueType :db.type/instant
-       :db/cardinality :db.cardinality/one
-       :db/doc "Timestamp of commit"
-       :db/index true
-       :db.install/_attribute :db.part/db}
+   {:db/ident :commit/committedAt
+    :db/valueType :db.type/instant
+    :db/cardinality :db.cardinality/one
+    :db/doc "Timestamp of commit"
+    :db/index true
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :tree/nodes
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/many
-       :db/doc "Nodes of a git tree"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :tree/nodes
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/doc "Nodes of a git tree"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :node/filename
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "filename of a tree node"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :node/filename
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "filename of a tree node"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :node/paths
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/many
-       :db/doc "paths of a tree node"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :node/paths
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/doc "paths of a tree node"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :node/object
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Git object (tree/blob) in a tree node"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :node/object
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Git object (tree/blob) in a tree node"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :git/prior
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Node containing prior value of a git object"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :git/prior
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Node containing prior value of a git object"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :email/address
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "An email address"
-       :db/unique :db.unique/identity
-       :db.install/_attribute :db.part/db}
+   {:db/ident :email/address
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "An email address"
+    :db/unique :db.unique/identity
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :file/name
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "A filename"
-       :db/fulltext true
-       :db/unique :db.unique/identity
-       :db.install/_attribute :db.part/db}
+   {:db/ident :file/name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A filename"
+    :db/fulltext true
+    :db/unique :db.unique/identity
+    :db.install/_attribute :db.part/db}
 
-      ;;codeq stuff
-      {:db/id #db/id[:db.part/db]
-       :db/ident :codeq/file
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Git file containing codeq"
-       :db.install/_attribute :db.part/db}
+   ;;codeq stuff
+   {:db/ident :codeq/file
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Git file containing codeq"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :codeq/loc
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "Location of codeq in file. A location string in format \"line col endline endcol\", one-based"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :codeq/loc
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "Location of codeq in file. A location string in format \"line col endline endcol\", one-based"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :codeq/parent
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Parent (containing) codeq of codeq (if one)"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :codeq/parent
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Parent (containing) codeq of codeq (if one)"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :codeq/code
-       :db/valueType :db.type/ref
-       :db/cardinality :db.cardinality/one
-       :db/doc "Code entity of codeq"
-       :db.install/_attribute :db.part/db}
+   {:db/ident :codeq/code
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/doc "Code entity of codeq"
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :code/sha
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "SHA of whitespace-minified code segment text: consecutive ws becomes a single space, then trim. ws-sensitive langs don't minify."
-       :db/unique :db.unique/identity
-       :db.install/_attribute :db.part/db}
+   {:db/ident :code/sha
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "SHA of whitespace-minified code segment text: consecutive ws becomes a single space, then trim. ws-sensitive langs don't minify."
+    :db/unique :db.unique/identity
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :code/text
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "The source code for a code segment"
-       ;;:db/fulltext true
-       :db.install/_attribute :db.part/db}
+   {:db/ident :code/text
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "The source code for a code segment"
+    ;;:db/fulltext true
+    :db.install/_attribute :db.part/db}
 
-      {:db/id #db/id[:db.part/db]
-       :db/ident :code/name
-       :db/valueType :db.type/string
-       :db/cardinality :db.cardinality/one
-       :db/doc "A globally-namespaced programming language identifier"
-       :db/fulltext true
-       :db/unique :db.unique/identity
-       :db.install/_attribute :db.part/db}
-      ])
+   {:db/ident :code/name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A globally-namespaced programming language identifier"
+    :db/fulltext true
+    :db/unique :db.unique/identity
+    :db.install/_attribute :db.part/db}
+   ])
 
 (defn ^java.io.Reader exec-stream
   [^String cmd]
@@ -350,8 +320,7 @@
 
 (defn commit-tx-data
   [db repo repo-name {:keys [sha msg tree parents author authored committer committed] :as commit}]
-  (let [tempid? map? ;;todo - better pred
-        sha->id (index->id-fn db :git/sha)
+  (let [sha->id (index->id-fn db :git/sha)
         email->id (index->id-fn db :email/address)
         filename->id (index->id-fn db :file/name)
         authorid (email->id author)
@@ -373,18 +342,18 @@
                                                         :where [?node :node/paths ?path]]
                                                       db pathid))))
                         data (cond-> []
-                                     (tempid? filenameid) (conj [:db/add filenameid :file/name filename])
-                                     (tempid? pathid) (conj [:db/add pathid :file/name path])
-                                     (tempid? nodeid) (conj {:db/id nodeid :node/filename filenameid :node/object id})
-                                     newpath (conj [:db/add nodeid :node/paths pathid])
-                                     (tempid? id) (conj {:db/id id :git/sha sha :git/type type}))
+                               (tempid? filenameid) (conj [:db/add filenameid :file/name filename])
+                               (tempid? pathid) (conj [:db/add pathid :file/name path])
+                               (tempid? nodeid) (conj {:db/id nodeid :node/filename filenameid :node/object id})
+                               newpath (conj [:db/add nodeid :node/paths pathid])
+                               (tempid? id) (conj {:db/id id :git/sha sha :git/type type}))
                         data (if (and newpath (= type :tree))
                                (let [es (ls-dir sha)]
                                  (reduce (fn [data child]
                                            (let [[cid cdata] (f (str path "/") child)
                                                  data (into data cdata)]
                                              (cond-> data
-                                                     (tempid? id) (conj [:db/add id :tree/nodes cid]))))
+                                               (tempid? id) (conj [:db/add id :tree/nodes cid]))))
                                          data es))
                                data)]
                     [nodeid data]))
@@ -403,20 +372,20 @@
                            :commit/committer committerid
                            :commit/committedAt committed
                            }
-                          msg (assoc :commit/message msg)
-                          parents (assoc :commit/parents
-                                    (mapv (fn [p]
-                                            (let [id (sha->id p)]
-                                              (assert (not (tempid? id))
-                                                      (str "Parent " p " not previously imported"))
-                                              id))
-                                          parents)))])
+                    msg (assoc :commit/message msg)
+                    parents (assoc :commit/parents
+                                   (mapv (fn [p]
+                                           (let [id (sha->id p)]
+                                             (assert (not (tempid? id))
+                                                     (str "Parent " p " not previously imported"))
+                                             id))
+                                         parents)))])
         tx (cond-> tx
-                   (tempid? authorid)
-                   (conj [:db/add authorid :email/address author])
+             (tempid? authorid)
+             (conj [:db/add authorid :email/address author])
 
-                   (and (not= committer author) (tempid? committerid))
-                   (conj [:db/add committerid :email/address committer]))]
+             (and (not= committer author) (tempid? committerid))
+             (conj [:db/add committerid :email/address committer]))]
     tx))
 
 (defn commits

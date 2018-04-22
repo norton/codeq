@@ -84,20 +84,17 @@
              (recur ret ctx (read r false eof))))))))
 
 (defn schemas []
-  {1 [{:db/id #db/id[:db.part/db]
-       :db/ident :clj/ns
+  {1 [{:db/ident :clj/ns
        :db/valueType :db.type/ref
        :db/cardinality :db.cardinality/one
        :db/doc "codename of ns defined by expression"
        :db.install/_attribute :db.part/db}
-      {:db/id #db/id[:db.part/db]
-       :db/ident :clj/def
+      {:db/ident :clj/def
        :db/valueType :db.type/ref
        :db/cardinality :db.cardinality/one
        :db/doc "codename defined by expression"
        :db.install/_attribute :db.part/db}]
-   2 [{:db/id #db/id[:db.part/db]
-       :db/ident :clj/defop
+   2 [{:db/ident :clj/defop
        :db/valueType :db.type/string
        :db/cardinality :db.cardinality/one
        :db/doc "the def form (defn, defmacro etc) used to create this definition"

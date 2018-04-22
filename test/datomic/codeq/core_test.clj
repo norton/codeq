@@ -1,6 +1,6 @@
 (ns datomic.codeq.core-test
-  (:use clojure.test
-        datomic.codeq.core))
+  (:require [clojure.test :refer :all]
+            [datomic.codeq.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

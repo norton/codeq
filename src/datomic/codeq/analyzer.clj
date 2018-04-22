@@ -22,7 +22,7 @@
 (defn sha
   "Returns the hex string of the sha1 of s"
   [^String s]
-  (org.apache.commons.codec.digest.DigestUtils/shaHex s))
+  (org.apache.commons.codec.digest.DigestUtils/sha1Hex s))
 
 (defn ws-minify
   "Consecutive ws becomes a single space, then trim"
