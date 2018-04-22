@@ -271,7 +271,7 @@
           ^String line (second es)
           uri (subs line (inc (.lastIndexOf line " ")))
           noff (.lastIndexOf uri "/")
-          noff (if (not (pos? noff)) (.lastIndexOf uri ":") noff)
+          noff (if-not (pos? noff) (.lastIndexOf uri ":") noff)
           name (subs uri (inc noff))
           _ (assert (pos? (count name)) "Can't find remote origin")
           name (if (.endsWith name ".git") (subs name 0 (.indexOf name ".")) name)]
