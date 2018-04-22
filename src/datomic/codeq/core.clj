@@ -307,7 +307,7 @@
           name (if (.endsWith name ".git") (subs name 0 (.indexOf name ".")) name)]
       [uri name])))
 
-(defn dir
+(defn ls-dir
   "Returns [[sha :type filename] ...]"
   [tree]
   (with-open [s (exec-stream (str "git cat-file -p " tree))]
@@ -379,7 +379,7 @@
                                      newpath (conj [:db/add nodeid :node/paths pathid])
                                      (tempid? id) (conj {:db/id id :git/sha sha :git/type type}))
                         data (if (and newpath (= type :tree))
-                               (let [es (dir sha)]
+                               (let [es (ls-dir sha)]
                                  (reduce (fn [data child]
                                            (let [[cid cdata] (f (str path "/") child)
                                                  data (into data cdata)]
