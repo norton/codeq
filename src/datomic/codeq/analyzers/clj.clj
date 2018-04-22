@@ -13,12 +13,12 @@
 
 (defn analyze-1
   "returns [tx-data ctx]"
-  [db f x loc seg ret {:keys [sha->id codename->id added ns] :as ctx}]
+  [db f x loc seg ret {:keys [sha1->id codename->id added ns] :as ctx}]
   (if loc
-    (let [sha (-> seg az/ws-minify az/sha)
-          codeid (sha->id sha)
+    (let [sha1 (-> seg az/ws-minify az/sha1)
+          codeid (sha1->id sha1)
           newcodeid (and (tempid? codeid) (not (added codeid)))
-          ret (cond-> ret newcodeid (conj {:db/id codeid :code/sha sha :code/text seg}))
+          ret (cond-> ret newcodeid (conj {:db/id codeid :code/sha1 sha1 :code/text seg}))
           added (cond-> added newcodeid (conj codeid))
 
           codeqid (or (ffirst (d/q '[:find ?e :in $ ?f ?loc
@@ -65,7 +65,7 @@
    (with-open [r (clojure.lang.LineNumberingPushbackReader. (java.io.StringReader. src))]
      (let [loffs (az/line-offsets src)
            eof (Object.)
-           ctx {:sha->id (index->id-fn db :code/sha)
+           ctx {:sha1->id (index->id-fn db :code/sha1)
                 :codename->id (index->id-fn db :code/name)
                 :added #{}}]
        (loop [ret [], ctx ctx, x (read r false eof)]

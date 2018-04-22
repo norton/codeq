@@ -56,10 +56,10 @@
     :db/index true
     :db/doc "Type enum for git objects - one of :commit, :tree, :blob, :tag"}
 
-   {:db/ident :git/sha
+   {:db/ident :git/sha1
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one
-    :db/doc "A git sha, should be in repo"
+    :db/doc "A git sha1, should be in repo"
     :db/unique :db.unique/identity}
 
    {:db/ident :repo/commits
@@ -170,7 +170,7 @@
     :db/cardinality :db.cardinality/one
     :db/doc "Code entity of codeq"}
 
-   {:db/ident :code/sha
+   {:db/ident :code/sha1
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one
     :db/doc "SHA of whitespace-minified code segment text: consecutive ws becomes a single space, then trim. ws-sensitive langs don't minify."
@@ -249,7 +249,7 @@
       [uri name])))
 
 (defn ls-dir
-  "Returns [[sha :type filename] ...]"
+  "Returns [[sha1 :type filename] ...]"
   [tree]
   (with-open [s (exec-stream (str "git cat-file -p " tree))]
     (let [es (line-seq s)]
@@ -260,11 +260,11 @@
             es))))
 
 (defn commit
-  [[sha _]]
+  [[sha1 _]]
   (let [trim-email (fn [s] (subs s 1 (dec (count s))))
         dt (fn [ds] (Date. (* 1000 (Integer/parseInt ds))))
         [tree parents author committer msg]
-        (with-open [s (exec-stream (str "git cat-file -p " sha))]
+        (with-open [s (exec-stream (str "git cat-file -p " sha1))]
           (let [lines (line-seq s)
                 slines (mapv #(string/split % #"\s") lines)
                 tree (-> slines (nth 0) (nth 1))
@@ -278,7 +278,7 @@
                   rest
                   (interpose "\n")
                   (apply str))]))]
-    {:sha sha
+    {:sha1 sha1
      :msg msg
      :tree tree
      :parents parents
@@ -290,16 +290,16 @@
 
 
 (defn commit-tx-data
-  [db repo repo-name {:keys [sha msg tree parents author authored committer committed] :as commit}]
-  (let [sha->id (index->id-fn db :git/sha)
+  [db repo repo-name {:keys [sha1 msg tree parents author authored committer committed] :as commit}]
+  (let [sha1->id (index->id-fn db :git/sha1)
         email->id (index->id-fn db :email/address)
         filename->id (index->id-fn db :file/name)
         authorid (email->id author)
         committerid (email->id committer)
         cid (d/tempid :db.part/user)
-        tx-data (fn f [inpath [sha type filename]]
+        tx-data (fn f [inpath [sha1 type filename]]
                   (let [path (str inpath filename)
-                        id (sha->id sha)
+                        id (sha1->id sha1)
                         filenameid (filename->id filename)
                         pathid (filename->id path)
                         nodeid (or (and (not (tempid? id))
@@ -317,9 +317,9 @@
                                (tempid? pathid) (conj [:db/add pathid :file/name path])
                                (tempid? nodeid) (conj {:db/id nodeid :node/filename filenameid :node/object id})
                                newpath (conj [:db/add nodeid :node/paths pathid])
-                               (tempid? id) (conj {:db/id id :git/sha sha :git/type type}))
+                               (tempid? id) (conj {:db/id id :git/sha1 sha1 :git/type type}))
                         data (if (and newpath (= type :tree))
-                               (let [es (ls-dir sha)]
+                               (let [es (ls-dir sha1)]
                                  (reduce (fn [data child]
                                            (let [[cid cdata] (f (str path "/") child)
                                                  data (into data cdata)]
@@ -337,7 +337,7 @@
                   (cond-> {:db/id cid
                            :git/type :commit
                            :commit/tree treeid
-                           :git/sha sha
+                           :git/sha1 sha1
                            :commit/author authorid
                            :commit/authoredAt authored
                            :commit/committer committerid
@@ -346,7 +346,7 @@
                     msg (assoc :commit/message msg)
                     parents (assoc :commit/parents
                                    (mapv (fn [p]
-                                           (let [id (sha->id p)]
+                                           (let [id (sha1->id p)]
                                              (assert (not (tempid? id))
                                                      (str "Parent " p " not previously imported"))
                                              id))
@@ -360,7 +360,7 @@
     tx))
 
 (defn commits
-  "Returns log as [[sha msg] ...], in commit order. commit-name may be nil
+  "Returns log as [[sha1 msg] ...], in commit order. commit-name may be nil
   or any acceptable commit name arg for git log"
   [commit-name]
   (let [commits (with-open [s (exec-stream (str "git log --pretty=oneline --date-order --reverse " commit-name))]
@@ -373,13 +373,13 @@
 (defn unimported-commits
   [db commit-name]
   (let [imported (into {}
-                       (d/q '[:find ?sha ?e
+                       (d/q '[:find ?sha1 ?e
                               :where
                               [?tx :tx/op :import]
                               [?tx :tx/commit ?e]
-                              [?e :git/sha ?sha]]
+                              [?e :git/sha1 ?sha1]]
                             db))]
-    (pmap commit (remove (fn [[sha _]] (imported sha)) (commits commit-name)))))
+    (pmap commit (remove (fn [[sha1 _]] (imported sha1)) (commits commit-name)))))
 
 
 (defn ensure-db [db-uri]
@@ -402,7 +402,7 @@
               repo))]
     (doseq [commit commits]
       (let [db (d/db conn)]
-        (println "Importing commit:" (:sha commit))
+        (println "Importing commit:" (:sha1 commit))
         (d/transact conn (commit-tx-data db repo repo-name commit))))
     (d/request-index conn)
     (println "Import complete!")))
@@ -448,9 +448,9 @@
         ;;find files not yet analyzed
         (doseq [f (sort (clojure.set/difference cfiles afiles))]
           ;;analyze them
-          (println "analyzing file:" f " - sha: " (:git/sha (d/entity db f)))
+          (println "analyzing file:" f " - sha1: " (:git/sha1 (d/entity db f)))
           (let [db (d/db conn)
-                src (with-open [s (exec-stream (str "git cat-file -p " (:git/sha (d/entity db f))))]
+                src (with-open [s (exec-stream (str "git cat-file -p " (:git/sha1 (d/entity db f))))]
                       (slurp s))
                 adata (try
                         (az/analyze a db f src)

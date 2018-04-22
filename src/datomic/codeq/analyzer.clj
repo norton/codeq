@@ -19,7 +19,7 @@
   (schemas [a] "map of revisions to (incremental) schema data")
   (analyze [a db f src] "f is file entityid, src is string, returns tx-data"))
 
-(defn sha
+(defn sha1
   "Returns the hex string of the sha1 of s"
   [^String s]
   (org.apache.commons.codec.digest.DigestUtils/sha1Hex s))
