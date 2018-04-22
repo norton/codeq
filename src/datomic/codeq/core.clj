@@ -13,7 +13,8 @@
             [clojure.string :as string]
             [datomic.codeq.util :refer [index->id-fn tempid?]]
             [datomic.codeq.analyzer :as az]
-            [datomic.codeq.analyzers.clj])
+            [datomic.codeq.analyzers.clj]
+            [datomic.codeq.analyzers.chart-yaml])
   (:import java.util.Date)
   (:gen-class))
 
@@ -403,11 +404,12 @@
     (doseq [commit commits]
       (let [db (d/db conn)]
         (println "Importing commit:" (:sha1 commit))
-        (d/transact conn (commit-tx-data db repo repo-name commit))))
+        @(d/transact conn (commit-tx-data db repo repo-name commit))))
     (d/request-index conn)
     (println "Import complete!")))
 
-(def analyzers [(datomic.codeq.analyzers.clj/impl)])
+(def analyzers [(datomic.codeq.analyzers.clj/impl)
+                (datomic.codeq.analyzers.chart-yaml/impl)])
 
 (defn run-analyzers
   [conn]
@@ -424,11 +426,11 @@
       ;;install schema(s) if not yet present
       (doseq [[rev aschema] (az/schemas a)]
         (when-not (srevs rev)
-          (d/transact conn
-                      (conj aschema {:db/id (d/tempid :db.part/tx)
-                                     :tx/op :schema
-                                     :tx/analyzer aname
-                                     :tx/analyzerRev rev}))))
+          @(d/transact conn
+                       (conj aschema {:db/id (d/tempid :db.part/tx)
+                                      :tx/op :schema
+                                      :tx/analyzer aname
+                                      :tx/analyzerRev rev}))))
       (let [db (d/db conn)
             arev (az/revision a)
             ;;candidate files
@@ -457,12 +459,12 @@
                         (catch Exception ex
                           (println (.getMessage ex))
                           []))]
-            (d/transact conn
-                        (conj adata {:db/id (d/tempid :db.part/tx)
-                                     :tx/op :analyze
-                                     :tx/file f
-                                     :tx/analyzer aname
-                                     :tx/analyzerRev arev})))))))
+            @(d/transact conn
+                         (conj adata {:db/id (d/tempid :db.part/tx)
+                                      :tx/op :analyze
+                                      :tx/file f
+                                      :tx/analyzer aname
+                                      :tx/analyzerRev arev})))))))
   (println "Analysis complete!"))
 
 (defn main [& [db-uri commit]]
