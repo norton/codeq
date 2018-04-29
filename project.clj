@@ -8,6 +8,6 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [com.datomic/datomic-free "0.9.5697"]
                  [commons-codec "1.11"]
-                 [io.forward/yaml "1.0.7"]]
+                 [io.forward/yaml "1.0.8"]]
   :source-paths ["src" "examples/src"]
   :profiles {:uberjar {:aot :all}})
